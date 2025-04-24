@@ -67,7 +67,7 @@ SMODS.Joker{
     loc_txt = {
         name = 'House Rep.',
         text = {
-            "{C:attention} First played {C:attention}card{}",
+            "{C:attention}First{} played {C:attention}card{}",
             "permanently gains",
             "{C:chips}+#1#{} Chips when scored", 
             "hand contains",
@@ -78,16 +78,17 @@ SMODS.Joker{
     -- pos = {x = 71, y = 0},
     config = { extra = {chip_mod = 20, poker_hand = "Full House"}},
     loc_vars = function(self, info_queue, center)
-        return {vars = {center.ability.chip_mod, center.ability.extra.poker_hand}}
+        return {vars = {center.ability.extra.chip_mod, center.ability.extra.poker_hand}}
     end,
     calculate = function(self, card, context)
         -- If a full house is played, perm. upgrade first scored card
-        local handPlayed = context.cardarea == G.play
-        local isFullHouse = context.scoring_name == card.ability.extra.poker_hand
-        local isFirstCard = context.other_card == context.scoring_hand[1]
+        local handPlayed = (context.cardarea == G.play)
+        local isFullHouse = (context.scoring_name == card.ability.extra.poker_hand)
+        -- Init scoring hand to zero to prevent crash at start of round
+        local isFirstCard = context.other_card == context.scoring_hand[1] or 0
         if handPlayed and isFullHouse and isFirstCard then
             -- Increment card value by chip mod
-            context.other_card.ability.perma_bonus = context.other_card.ability.perma_bonus + self.ability.extra.chip_mod
+            context.other_card.ability.perma_bonus = context.other_card.ability.perma_bonus + card.ability.extra.chip_mod
             return {
                 card = card,
                 -- Show upgrade me
