@@ -34,7 +34,7 @@ SMODS.Joker{
         }
     },
     atlas = 'Jokers',
-    pos = {x = 0, y = 0},
+    --pos = {x = 0, y = 0},
     config = { extra = {Xmult = 4, poker_hand = "Full House"}},
     loc_vars = function(self, info_queue, center)
         return {vars = {center.ability.extra.Xmult, center.ability.extra.poker_hand}}
@@ -53,6 +53,15 @@ SMODS.Joker{
         end
     end
 end
+}
+
+SMODS.Atlas{
+    key = 'House_rep',
+    path = 'house_rep.png',
+    -- Width of each card
+    px = 71,
+    -- Height of each card
+    py = 95
 }
 
 SMODS.Joker{
@@ -74,9 +83,9 @@ SMODS.Joker{
             "a {C:attention}#2#"
         }
     },
-    -- atlas = 'Jokers',
-    -- pos = {x = 71, y = 0},
-    config = { extra = {chip_mod = 20, poker_hand = "Full House"}},
+    atlas = 'House_rep',
+    --pos = {x = 71, y = 0},
+    config = { extra = {chip_mod = 10, poker_hand = "Full House"}},
     loc_vars = function(self, info_queue, center)
         return {vars = {center.ability.extra.chip_mod, center.ability.extra.poker_hand}}
     end,
@@ -85,16 +94,17 @@ SMODS.Joker{
         local handPlayed = (context.cardarea == G.play)
         local isFullHouse = (context.scoring_name == card.ability.extra.poker_hand)
         -- Init scoring hand to zero to prevent crash at start of round
-        local isFirstCard = context.other_card == context.scoring_hand[1] or 0
-        if handPlayed and isFullHouse and isFirstCard then
-            -- Increment card value by chip mod
-            context.other_card.ability.perma_bonus = context.other_card.ability.perma_bonus + card.ability.extra.chip_mod
-            return {
-                card = card,
-                -- Show upgrade me
-                message = "Upgrade!",
-                colour = G.C.CHIPS
+        if handPlayed and isFullHouse then
+            if context.other_card == context.scoring_hand[1] then
+                -- Add permanent bonus to first card
+                context.other_card.ability.perma_bonus = context.other_card.ability.perma_bonus + card.ability.extra.chip_mod
+                return {
+                    card = card,
+                    -- Show upgrade msg
+                    message = "Upgrade!",
+                    colour = G.C.CHIPS
             }
         end
     end
+end
 }
