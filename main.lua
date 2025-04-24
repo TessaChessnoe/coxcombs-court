@@ -16,16 +16,6 @@ SMODS.Atlas{
 }
 
 -- Declare joker name, text, and unlock cond
-SMODS.Atlas{
-    key = 'Jokers',
-    path = 'Jokers.png',
-    -- Width of each card
-    px = 71,
-    -- Height of each card
-    py = 95
-}
-
--- Declare joker name, text, and unlock cond
 SMODS.Joker{
     key = 'j_commune',
     rarity = 3,
@@ -63,4 +53,47 @@ SMODS.Joker{
         end
     end
 end
+}
+
+SMODS.Joker{
+    key = 'j_house_rep',
+    rarity = 2,
+	cost = 5,
+	unlocked = true,
+	discovered = true,
+	blueprint_compat = true,
+	eternal_compat = true,
+	perishable_compat = true,
+    loc_txt = {
+        name = 'House Rep.',
+        text = {
+            "{C:attention} First played {C:attention}card{}",
+            "permanently gains",
+            "{C:chips}+#1#{} Chips when scored", 
+            "hand contains",
+            "a {C:attention}#2#"
+        }
+    },
+    -- atlas = 'Jokers',
+    -- pos = {x = 71, y = 0},
+    config = { extra = {chip_mod = 20, poker_hand = "Full House"}},
+    loc_vars = function(self, info_queue, center)
+        return {vars = {center.ability.chip_mod, center.ability.extra.poker_hand}}
+    end,
+    calculate = function(self, card, context)
+        -- If a full house is played, perm. upgrade first scored card
+        local handPlayed = context.cardarea == G.play
+        local isFullHouse = context.scoring_name == card.ability.extra.poker_hand
+        local isFirstCard = context.other_card == context.scoring_hand[1]
+        if handPlayed and isFullHouse and isFirstCard then
+            -- Increment card value by chip mod
+            context.other_card.ability.perma_bonus = context.other_card.ability.perma_bonus + self.ability.extra.chip_mod
+            return {
+                card = card,
+                -- Show upgrade me
+                message = "Upgrade!",
+                colour = G.C.CHIPS
+            }
+        end
+    end
 }
